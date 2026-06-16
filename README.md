@@ -328,15 +328,6 @@ Minimum contents:
 ## What this is
 Brief description. Stack: Python, ...
 
-## Frozen files — never modify without explicit instruction
-- path/to/frozen_file.py
-
-## Rules
-- No deletions unless explicitly asked
-- Always incremental — new code alongside existing
-- Run tests after any change to core logic
-- Commit format: [FEATURE|FIX|TEST] short description
-
 ## Project structure
 - src/          — core source code
 - tests/        — test suite
@@ -344,7 +335,6 @@ Brief description. Stack: Python, ...
 
 ## Common commands
 pip install -r requirements.txt
-python -m pytest tests/ -v
 
 ## Phase status
 Phase 1: COMPLETE
