@@ -1,7 +1,6 @@
-# windows-ai-dev-setup
-AI Development Environment on Windows using Claude Code and MCP
 # Windows Developer Environment Setup Guide
 ## Python · VS Code · Git · GitHub CLI · Node.js · Claude Code · GitHub MCP
+AI Development Environment on Windows using Claude Code and MCP
 
 **Audience:** Anyone setting up a new Windows laptop for AI-assisted development  
 **Time required:** 30–45 minutes  
