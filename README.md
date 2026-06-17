@@ -1,4 +1,4 @@
-# Windows Developer Environment Setup Guide
+# AI Developer Environment Setup Guide for Windows OS
 ## Python · VS Code · Git · GitHub CLI · Node.js · Claude Code · GitHub MCP
 
 **Audience:** Anyone setting up a new Windows laptop for AI-assisted development  
