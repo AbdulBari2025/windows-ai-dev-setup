@@ -1,6 +1,5 @@
 # Windows Developer Environment Setup Guide
 ## Python · VS Code · Git · GitHub CLI · Node.js · Claude Code · GitHub MCP
-AI Development Environment on Windows using Claude Code and MCP
 
 **Audience:** Anyone setting up a new Windows laptop for AI-assisted development  
 **Time required:** 30–45 minutes  
@@ -172,10 +171,10 @@ github.com
 
 ### 3.1 Install Claude Code
 
-The native installer is the recommended method — no Node.js dependency, auto-updates:
+Install via npm (requires Node.js from Part 1.4):
 
 ```powershell
-irm https://claude.ai/install.ps1 | iex
+npm install -g @anthropic-ai/claude-code
 ```
 
 Close PowerShell and open a new window so PATH updates take effect.
@@ -185,14 +184,23 @@ Verify:
 claude --version
 ```
 
-> If `claude` is not recognised after reopening, add Claude's install directory to PATH manually:  
-> Search **"Environment Variables"** in Start → System Properties → Environment Variables → Path → Edit → New → paste the path shown in the install output.
+> If `claude` is not recognised after reopening, find npm's global bin folder and add it to PATH:
+> ```powershell
+> npm config get prefix
+> ```
+> Copy the path it returns, then go to **Start → Search "Environment Variables" → System Properties → Environment Variables → Path → Edit → New** and paste it. Open a new PowerShell window and try again.
+
+> **Alternative — native installer** (no Node.js required, auto-updates):
+> ```powershell
+> irm https://claude.ai/install.ps1 | iex
+> ```
+> Both methods install the same Claude Code. Use npm if you want version control; use the native installer if you want zero dependencies.
 
 ### 3.2 Authenticate Claude Code
 
-Run from inside your project folder:
+Run in PowerShell from any directory:
+
 ```powershell
-cd D:\projects\YourProject
 claude
 ```
 
@@ -204,39 +212,128 @@ You should see the Claude Code prompt:
 ```
 ▐▛███▜▌   Claude Code v2.x.xxx
 ▝▜█████▛▘  Sonnet 4.6 · Claude Pro
-  ▘▘ ▝▝    D:\projects\YourProject
 ```
+
+Type `exit` to leave Claude Code for now and continue with the setup.
 
 ---
 
-## Part 4 — Clone Project from GitHub
+## Part 4 — Set Up Your Project
 
-### 4.1 Clone your repository
+You have two starting points depending on whether the project already exists on GitHub or you are starting fresh.
+
+---
+
+### Path A — Clone an existing GitHub repo
+
+Open PowerShell and run:
 
 ```powershell
 cd D:\projects
 gh repo clone YourUsername/YourRepoName
 cd YourRepoName
+code .
 ```
 
-Or using git directly:
+VS Code opens with the project loaded. Continue to **Step 4.3**.
+
+---
+
+### Path B — Create a new project from scratch
+
+Open **Windows Explorer**, navigate to `D:\projects`, click the address bar, type `cmd` and press Enter. This opens a Command Prompt already inside that folder.
+
+```cmd
+mkdir MyProject
+cd MyProject
+code .
+```
+
+VS Code opens with the empty project folder loaded.
+
+**Initialise git and connect to GitHub:**
+
+In the VS Code terminal (**Ctrl+`**):
+
 ```powershell
-git clone https://github.com/YourUsername/YourRepoName.git
-cd YourRepoName
+git init
+git branch -M main
+gh repo create MyProject --private --source=. --push
 ```
 
-### 4.2 Set up Python virtual environment
+This creates the private repo on GitHub and pushes the initial commit in one step.
+
+---
+
+### 4.3 Select Python interpreter
+
+In VS Code press **Ctrl+Shift+P**, type `Python: Select Interpreter` and press Enter. Choose the Python version you installed in Part 1.1 (e.g. `Python 3.11.x`).
+
+### 4.4 Create virtual environment
+
+In the VS Code terminal:
 
 ```powershell
 python -m venv .venv
 .venv\Scripts\activate
+```
+
+Your prompt should now show `(.venv)`:
+```
+(.venv) PS D:\projects\MyProject>
+```
+
+### 4.5 Create `requirements.txt` and install dependencies
+
+Create `requirements.txt` in your project root with your packages — sample starting point:
+
+```
+fastapi==0.115.0
+requests==2.32.3
+python-dotenv==1.0.1
+```
+
+Then install:
+
+```powershell
 pip install -r requirements.txt
 ```
 
-Verify the venv is active — your prompt should show `(.venv)`:
+### 4.6 Create `CLAUDE.md`
+
+Claude Code reads this file automatically at every session start — it is its permanent memory about your project.
+
+```powershell
+code CLAUDE.md
 ```
-(.venv) PS D:\projects\YourRepoName>
+
+Minimum contents:
+
+```markdown
+# Project Name
+
+## What this is
+Brief description. Stack: Python, ...
+
+## Project structure
+- src/          — core source code
+- config/       — configuration
+
+## Common commands
+pip install -r requirements.txt
+
+## Phase status
+Phase 1: COMPLETE
+Phase 2: IN PROGRESS
 ```
+
+### 4.7 Launch Claude Code in your project
+
+```powershell
+claude
+```
+
+Claude Code now starts with full context of your project, reads `CLAUDE.md` automatically, and is ready for development.
 
 ---
 
@@ -250,7 +347,9 @@ The MCP server lets Claude Code read issues, create PRs, check commits, and inte
 npm install -g @modelcontextprotocol/server-github
 ```
 
-> Note: This package is deprecated as of April 2025 but remains functional. It uses the standard GitHub REST API with your PAT — no Copilot subscription needed.
+> This package was deprecated by its maintainer in April 2025 but remains fully functional for connecting Claude Code to GitHub via the standard REST API. It requires only your classic PAT — no GitHub Copilot subscription needed.
+>
+> **Do not use** `https://api.githubcopilot.com/mcp` as an alternative — that endpoint requires an active GitHub Copilot licence and returns a 401 unauthorised error without one.
 
 ### 5.2 Add GitHub MCP to Claude Code config
 
@@ -312,38 +411,7 @@ A response listing issues (or confirming none exist) means everything is working
 
 ---
 
-## Part 6 — CLAUDE.md Project File
-
-Every project should have a `CLAUDE.md` file in its root. Claude Code reads this automatically at session start — it is Claude's permanent memory about your project.
-
-Create it in your project root:
-```powershell
-code CLAUDE.md
-```
-
-Minimum contents:
-```markdown
-# Project Name
-
-## What this is
-Brief description. Stack: Python, ...
-
-## Project structure
-- src/          — core source code
-- tests/        — test suite
-- config/       — configuration
-
-## Common commands
-pip install -r requirements.txt
-
-## Phase status
-Phase 1: COMPLETE
-Phase 2: IN PROGRESS
-```
-
----
-
-## Part 7 — Personal Access Token for Kaggle Notebooks
+## Part 6 — Personal Access Token for Kaggle Notebooks
 
 When you move work to a Kaggle notebook (for GPU access), you need the same GitHub PAT to clone your private repo.
 
@@ -354,17 +422,20 @@ When you move work to a Kaggle notebook (for GPU access), you need the same GitH
 3. Name: `GITHUB_TOKEN`
 4. Value: your `ghp_xxxx` PAT
 
-In the notebook, access it:
+In the notebook, access it and clone your repo:
+
 ```python
 from kaggle_secrets import UserSecretsClient
+
+# Retrieve the token
 token = UserSecretsClient().get_secret("GITHUB_TOKEN")
 
-import subprocess
-subprocess.run([
-    "git", "clone",
-    f"https://{token}@github.com/YourUsername/YourRepoName.git"
-])
+# Clone using the authenticated HTTPS URL
+import os
+os.system(f"git clone https://{token}@github.com/YourUsername/YourRepoName.git")
 ```
+
+> `os.system()` is the simplest method in Kaggle notebooks. It runs the git command directly in the shell — no additional imports or configuration needed.
 
 > Use the same classic PAT with `repo` scope — it works identically from Kaggle.
 
@@ -407,6 +478,4 @@ git pull
 | GitHub MCP `✘ Failed to connect` | Check PAT scopes (`repo`, `read:org`, `read:user`) and expiry |
 | `api.githubcopilot.com` returns 401 | That endpoint requires Copilot subscription — use the npm package approach instead |
 | `(.venv)` not showing in prompt | Run `.venv\Scripts\activate` from project root |
-| VS Code Python interpreter wrong | Ctrl+Shift+P → **Python: Select Interpreter** → choose `.venv` |
-| `pip install` fails with permission error | Never use `sudo` on Windows; ensure venv is activated first |
 | Claude Code auth loop | Run `claude logout` then `claude` again to re-authenticate |
